@@ -16,7 +16,22 @@ fn main() {
 
     match (args.year, args.day) {
         (2022, 1) => {
-            use advent_of_code::y2022::{puzzle_a, puzzle_b};
+            use advent_of_code::y2022::day1::{puzzle_a, puzzle_b};
+            println!(
+                "year: {}, day: {}, puzzle a answer: {}",
+                args.year,
+                args.day,
+                puzzle_a(&args.input)
+            );
+            println!(
+                "year: {}, day: {}, puzzle b answer: {}",
+                args.year,
+                args.day,
+                puzzle_b(&args.input)
+            );
+        }
+        (2022, 2) => {
+            use advent_of_code::y2022::day2::{puzzle_a, puzzle_b};
             println!(
                 "year: {}, day: {}, puzzle a answer: {}",
                 args.year,
