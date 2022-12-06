@@ -8,3 +8,7 @@ authors = ["boris.lok <boris.lok.tw@outlook.com>"]
 path = "src/lib.rs"
 
 [dependencies]
+clap = { version = "4.0.29", features = ["derive"] }
+
+[dev-dependencies]
+rand = "0.8.5"
