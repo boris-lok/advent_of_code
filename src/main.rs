@@ -1,4 +1,6 @@
 use clap::Parser;
+use std::fs::File;
+use std::io::{BufRead, BufReader};
 
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
@@ -18,36 +20,38 @@ fn main() {
         (2022, 1) => {
             use advent_of_code::y2022::day1::{puzzle_a, puzzle_b};
             println!(
-                "year: {}, day: {}, puzzle a answer: {}",
+                "year: {}, day: {}, puzzle a answer: {}, puzzle b answer: {}",
                 args.year,
                 args.day,
-                puzzle_a(&args.input)
-            );
-            println!(
-                "year: {}, day: {}, puzzle b answer: {}",
-                args.year,
-                args.day,
+                puzzle_a(&args.input),
                 puzzle_b(&args.input)
             );
         }
         (2022, 2) => {
             use advent_of_code::y2022::day2::{puzzle_a, puzzle_b};
             println!(
-                "year: {}, day: {}, puzzle a answer: {}",
+                "year: {}, day: {}, puzzle a answer: {}, puzzle b answer: {}",
                 args.year,
                 args.day,
-                puzzle_a(&args.input)
-            );
-            println!(
-                "year: {}, day: {}, puzzle b answer: {}",
-                args.year,
-                args.day,
+                puzzle_a(&args.input),
                 puzzle_b(&args.input)
             );
         }
-        _ => panic!(
-            "Can't find the source code year: {}, day: {}",
-            args.year, args.day
-        ),
+        (2022, 3) => {
+            use advent_of_code::y2022::day3::{puzzle_a, puzzle_b};
+            println!(
+                "year: {}, day: {}, puzzle a answer: {}, puzzle b answer: {}",
+                args.year,
+                args.day,
+                puzzle_a(&args.input),
+                puzzle_b(&args.input)
+            );
+        }
+        _ => {
+            panic!(
+                "Can't find the source code year: {}, day: {}",
+                args.year, args.day
+            )
+        }
     };
 }
