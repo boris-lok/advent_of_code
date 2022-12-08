@@ -1,6 +1,6 @@
-/// Reference from: https://dev.to/nickymeuleman/advent-of-code-2022-day-5-29ok
-
 use itertools::Itertools;
+
+/// Reference from: https://dev.to/nickymeuleman/advent-of-code-2022-day-5-29ok
 
 struct Command {
     steps: usize,

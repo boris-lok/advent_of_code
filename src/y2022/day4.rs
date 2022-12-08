@@ -64,21 +64,21 @@ mod test {
 
     #[test]
     fn check_is_fully_contain_works() {
-        assert_eq!(check_is_fully_overlap(2, 4, 6, 8), false);
-        assert_eq!(check_is_fully_overlap(2, 3, 4, 5), false);
-        assert_eq!(check_is_fully_overlap(5, 7, 7, 9), false);
-        assert_eq!(check_is_fully_overlap(2, 8, 3, 7), true);
-        assert_eq!(check_is_fully_overlap(6, 6, 4, 6), true);
-        assert_eq!(check_is_fully_overlap(2, 6, 4, 8), false);
+        assert!(!check_is_fully_overlap(2, 4, 6, 8));
+        assert!(!check_is_fully_overlap(2, 3, 4, 5));
+        assert!(!check_is_fully_overlap(5, 7, 7, 9));
+        assert!(check_is_fully_overlap(2, 8, 3, 7));
+        assert!(check_is_fully_overlap(6, 6, 4, 6));
+        assert!(!check_is_fully_overlap(2, 6, 4, 8));
     }
 
     #[test]
     fn check_is_partial_contain_works() {
-        assert_eq!(check_is_partial_overlap(2, 4, 6, 8), false);
-        assert_eq!(check_is_partial_overlap(2, 3, 4, 5), false);
-        assert_eq!(check_is_partial_overlap(5, 7, 7, 9), true);
-        assert_eq!(check_is_partial_overlap(2, 8, 3, 7), true);
-        assert_eq!(check_is_partial_overlap(6, 6, 4, 6), true);
-        assert_eq!(check_is_partial_overlap(2, 6, 4, 8), true);
+        assert!(!check_is_partial_overlap(2, 4, 6, 8));
+        assert!(!check_is_partial_overlap(2, 3, 4, 5));
+        assert!(check_is_partial_overlap(5, 7, 7, 9));
+        assert!(check_is_partial_overlap(2, 8, 3, 7));
+        assert!(check_is_partial_overlap(6, 6, 4, 6));
+        assert!(check_is_partial_overlap(2, 6, 4, 8));
     }
 }
