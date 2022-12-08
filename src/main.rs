@@ -56,6 +56,16 @@ fn main() {
                 puzzle_b(&args.input)
             );
         }
+        (2022, 5) => {
+            use advent_of_code::y2022::day5::{puzzle_a, puzzle_b};
+            println!(
+                "year: {}, day: {}, puzzle a answer: {}, puzzle b answer: {}",
+                args.year,
+                args.day,
+                puzzle_a(&args.input),
+                puzzle_b(&args.input)
+            );
+        }
         _ => {
             panic!(
                 "Can't find the source code year: {}, day: {}",
