@@ -2,6 +2,65 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use itertools::izip;
 
+fn cal_x(grid: &Vec<Vec<u8>>, w: usize, h: usize) -> Vec<Vec<bool>> {
+    let mut ans = vec![vec![false; w]; h];
+
+    for y in 0..h {
+        let mut left_max = 0_u8;
+        let mut right_max = 0_u8;
+
+        for x in 0..w {
+            let left_val = grid[y][x];
+            let right_val = grid[y][w - x - 1];
+            if y == 0 || y == h - 1 {
+                ans[y][x] = true;
+            }
+
+            if left_val > left_max {
+                ans[y][x] = true;
+                left_max = left_val;
+            }
+
+            if right_val > right_max {
+                ans[y][w - x - 1] = true;
+                right_max = right_val;
+            }
+        }
+    }
+
+    ans
+}
+
+fn cal_y(grid: &Vec<Vec<u8>>, w: usize, h: usize) -> Vec<Vec<bool>> {
+    let mut ans = vec![vec![false; w]; h];
+
+    for x in 0..w {
+        let mut top_max = 0_u8;
+        let mut bottom_max = 0_u8;
+
+        for y in 0..h {
+            let top_val = grid[y][x];
+            let bottom_val = grid[h - y - 1][x];
+
+            if x == 0 || x == w - 1 {
+                ans[y][x] = true;
+            }
+
+            if top_val > top_max {
+                ans[y][x] = true;
+                top_max = top_val;
+            }
+
+            if bottom_val > bottom_max {
+                ans[h - y - 1][x] = true;
+                bottom_max = bottom_val;
+            }
+        }
+    }
+
+    ans
+}
+
 fn calculate_right(grid: &Vec<Vec<u8>>, w: usize, h: usize) -> Vec<Vec<(usize, bool)>> {
     let mut ans = vec![vec![(0_usize, false); w]; h];
 
@@ -184,20 +243,15 @@ pub fn puzzle_a(path: &str) -> usize {
     let w = grid[0].len();
     let h = grid.len();
 
-    let top = calculate_top(&grid, w, h);
-    let right = calculate_right(&grid, w, h);
-    let bottom = calculate_bottom(&grid, w, h);
-    let left = calculate_left(&grid, w, h);
-
+    let x = cal_x(&grid, w, h);
+    let y = cal_y(&grid, w, h);
 
     izip!(
-            left.iter().flatten(),
-            right.iter().flatten(),
-            bottom.iter().flatten(),
-            top.iter().flatten()
+        x.iter().flatten(),
+            y.iter().flatten(),
         ).filter(
-        |(&l, &r, &b, &t)| {
-            l.1 | r.1 | b.1 | t.1
+        |(&x, &y)| {
+            x | y
         }
     ).count()
 }
@@ -232,7 +286,6 @@ pub fn puzzle_b(path: &str) -> usize {
         .unwrap()
 }
 
-
 #[cfg(test)]
 mod test {
     use itertools::izip;
@@ -255,6 +308,14 @@ mod test {
         let bottom = calculate_bottom(&grid, 5, 5);
         let top = calculate_top(&grid, 5, 5);
 
+        let x = cal_x(&grid, 5, 5);
+        let y = cal_y(&grid, 5, 5);
+
+        let visible2 = izip!(
+            x.iter().flatten(),
+            y.iter().flatten()
+        ).filter(|(&x, &y)| x | y).count();
+
         let visible = izip!(
             left.iter().flatten(),
             right.iter().flatten(),
@@ -269,6 +330,7 @@ mod test {
             top.iter().flatten()
         ).map(|(&l, &r, &b, &t)| l.0 * r.0 * b.0 * t.0).max().unwrap();
 
+        assert_eq!(visible2, 21);
         assert_eq!(visible, 21);
         assert_eq!(highest_score, 8);
     }
