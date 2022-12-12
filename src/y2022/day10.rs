@@ -11,7 +11,7 @@ fn calculate_score(commands: Vec<String>, steps: Vec<usize>) -> i32 {
         if cmd == "noop" {
             stack.push(0);
         } else {
-            let mut part = cmd.splitn(2, " ").collect::<Vec<_>>();
+            let part = cmd.splitn(2, ' ').collect::<Vec<_>>();
             let number = part.last().unwrap().parse::<i32>().unwrap();
 
             stack.push(0);
@@ -48,7 +48,7 @@ fn calculate_crt(commands: Vec<String>) {
                 ' '
             };
         } else {
-            let mut part = cmd.splitn(2, " ").collect::<Vec<_>>();
+            let part = cmd.splitn(2, ' ').collect::<Vec<_>>();
             let number = part.last().unwrap().parse::<i32>().unwrap();
 
             t += 1;
@@ -72,8 +72,8 @@ fn calculate_crt(commands: Vec<String>) {
         }
     }
 
-    for y in 0..6 {
-        println!("{}", ans[y].iter().join(""));
+    for col in ans {
+        println!("{}", col.iter().join(""));
     }
 }
 

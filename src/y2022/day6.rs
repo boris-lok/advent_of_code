@@ -1,6 +1,5 @@
 use std::fs::File;
 use std::io::{BufRead, BufReader};
-use itertools::Itertools;
 
 pub fn find_the_position(s: &str, offset: usize) -> usize {
     s.as_bytes()

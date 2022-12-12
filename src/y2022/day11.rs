@@ -22,29 +22,29 @@ struct Monkey {
     inspected: usize,
 }
 
-fn parse_input<'a, 'b>(input: &'a str) -> Vec<Monkey> {
+fn parse_input<'a>(input: &'a str) -> Vec<Monkey> {
     let group = input
         .split("\n\n");
 
-    let monkeys = group
+    group
         .map(|g| {
-            let mut line = g.split("\n");
+            let mut line = g.split('\n');
 
             let id = line.next().unwrap()
-                .split(" ")
+                .split(' ')
                 .nth(1)
                 .unwrap();
 
-            let id = id.split(":")
-                .nth(0)
+            let id = id.split(':')
+                .next()
                 .unwrap()
                 .parse::<u8>()
                 .expect("Can't parse id to u8");
 
-            let parse_line = |e: Option<&'a str>, pat: &'b str| -> &'a str {
+            let parse_line = |e: Option<&'a str>, pat: &str| -> &'a str {
                 e
                     .unwrap()
-                    .split(" ")
+                    .split(pat)
                     .last()
                     .unwrap()
             };
@@ -62,13 +62,13 @@ fn parse_input<'a, 'b>(input: &'a str) -> Vec<Monkey> {
             let part = line
                 .next()
                 .unwrap()
-                .split(" ")
+                .split(' ')
                 .collect::<Vec<_>>();
 
             let value = part.last()
                 .unwrap()
                 .parse::<isize>()
-                .map(|e| Value::Value(e))
+                .map(Value::Value)
                 .unwrap_or_else(|_| Value::Old);
 
             let operation = part[part.len() - 2];
@@ -103,8 +103,7 @@ fn parse_input<'a, 'b>(input: &'a str) -> Vec<Monkey> {
                 inspected: 0,
             }
         })
-        .collect::<Vec<_>>();
-    monkeys
+        .collect::<Vec<_>>()
 }
 
 fn calculate_worry<F>(mut monkeys: Vec<Monkey>, f: F, iteration: usize) -> usize
@@ -183,7 +182,7 @@ pub fn puzzle_b(path: &str) -> usize {
         .iter()
         .fold(1_isize, |ans, elem| ans * elem.test);
 
-    calculate_worry(monkeys.clone(), |e| e % m, 10000)
+    calculate_worry(monkeys, |e| e % m, 10000)
 }
 
 
@@ -195,7 +194,7 @@ mod test {
     fn test_calculation_of_worry() {
         let data = include_str!("../input/day11.test.in");
         let input = parse_input(data);
-        assert_eq!(calculate_worry(input), 10605);
+        assert_eq!(calculate_worry(input, |e| e / 3, 20), 10605);
     }
 
     #[test]

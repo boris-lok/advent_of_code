@@ -2,7 +2,7 @@ use std::fs::File;
 use std::io::{BufRead, BufReader};
 use itertools::izip;
 
-fn cal_x(grid: &Vec<Vec<u8>>, w: usize, h: usize) -> Vec<Vec<bool>> {
+fn cal_x(grid: &[Vec<u8>], w: usize, h: usize) -> Vec<Vec<bool>> {
     let mut ans = vec![vec![false; w]; h];
 
     for y in 0..h {
@@ -31,7 +31,7 @@ fn cal_x(grid: &Vec<Vec<u8>>, w: usize, h: usize) -> Vec<Vec<bool>> {
     ans
 }
 
-fn cal_y(grid: &Vec<Vec<u8>>, w: usize, h: usize) -> Vec<Vec<bool>> {
+fn cal_y(grid: &[Vec<u8>], w: usize, h: usize) -> Vec<Vec<bool>> {
     let mut ans = vec![vec![false; w]; h];
 
     for x in 0..w {
@@ -61,7 +61,7 @@ fn cal_y(grid: &Vec<Vec<u8>>, w: usize, h: usize) -> Vec<Vec<bool>> {
     ans
 }
 
-fn calculate_right(grid: &Vec<Vec<u8>>, w: usize, h: usize) -> Vec<Vec<(usize, bool)>> {
+fn calculate_right(grid: &[Vec<u8>], w: usize, h: usize) -> Vec<Vec<(usize, bool)>> {
     let mut ans = vec![vec![(0_usize, false); w]; h];
 
     for y in 0..h {
@@ -103,7 +103,7 @@ fn calculate_right(grid: &Vec<Vec<u8>>, w: usize, h: usize) -> Vec<Vec<(usize, b
     ans
 }
 
-fn calculate_left(grid: &Vec<Vec<u8>>, w: usize, h: usize) -> Vec<Vec<(usize, bool)>> {
+fn calculate_left(grid: &[Vec<u8>], w: usize, h: usize) -> Vec<Vec<(usize, bool)>> {
     let mut ans = vec![vec![(0_usize, false); w]; h];
 
     for y in 0..h {
@@ -145,7 +145,7 @@ fn calculate_left(grid: &Vec<Vec<u8>>, w: usize, h: usize) -> Vec<Vec<(usize, bo
     ans
 }
 
-fn calculate_bottom(grid: &Vec<Vec<u8>>, w: usize, h: usize) -> Vec<Vec<(usize, bool)>> {
+fn calculate_bottom(grid: &[Vec<u8>], w: usize, h: usize) -> Vec<Vec<(usize, bool)>> {
     let mut ans = vec![vec![(0_usize, false); w]; h];
 
     for x in 0..w {
@@ -188,7 +188,7 @@ fn calculate_bottom(grid: &Vec<Vec<u8>>, w: usize, h: usize) -> Vec<Vec<(usize, 
     ans
 }
 
-fn calculate_top(grid: &Vec<Vec<u8>>, w: usize, h: usize) -> Vec<Vec<(usize, bool)>> {
+fn calculate_top(grid: &[Vec<u8>], w: usize, h: usize) -> Vec<Vec<(usize, bool)>> {
     let mut ans = vec![vec![(0_usize, false); w]; h];
 
     for x in 0..w {
@@ -237,7 +237,7 @@ pub fn puzzle_a(path: &str) -> usize {
 
     let grid = reader.lines()
         .map(|e| e.unwrap())
-        .map(|e| e.as_bytes().iter().map(|e| *e).collect::<Vec<_>>())
+        .map(|e| e.as_bytes().to_vec())
         .collect::<Vec<_>>();
 
     let w = grid[0].len();
@@ -262,7 +262,7 @@ pub fn puzzle_b(path: &str) -> usize {
 
     let grid = reader.lines()
         .map(|e| e.unwrap())
-        .map(|e| e.as_bytes().iter().map(|e| *e).collect::<Vec<_>>())
+        .map(|e| e.as_bytes().to_vec())
         .collect::<Vec<_>>();
 
     let w = grid[0].len();

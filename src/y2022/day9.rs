@@ -1,3 +1,4 @@
+use std::cmp::Ordering;
 use std::fs::File;
 use std::io::{BufRead, BufReader};
 
@@ -10,7 +11,7 @@ fn calculate_visited_for_task_a(commands: Vec<String>) -> usize {
 
 
     for command in commands {
-        let part = command.splitn(2, " ").collect::<Vec<_>>();
+        let part = command.splitn(2, ' ').collect::<Vec<_>>();
         let direction = part.first().unwrap();
         let distance = part.last().unwrap().parse::<i32>().unwrap();
 
@@ -26,9 +27,7 @@ fn calculate_visited_for_task_a(commands: Vec<String>) -> usize {
             let dx: i32 = head_position.0 - tail_position.0;
             let dy: i32 = head_position.1 - tail_position.1;
 
-            if (dx == 0 && dy.abs() == 1) || (dy == 0 && dx.abs() == 1) {
-                continue;
-            } else if dx.abs() == 1 && dy.abs() == 1 {
+            if (dx == 0 && dy.abs() == 1) || (dy == 0 && dx.abs() == 1) || dx.abs() == 1 && dy.abs() == 1 {
                 continue;
             } else {
                 tail_position.0 += to_one(dx);
@@ -58,7 +57,7 @@ fn calculate_visited_for_task_b(commands: Vec<String>) -> usize {
 
 
     for command in commands {
-        let part = command.splitn(2, " ").collect::<Vec<_>>();
+        let part = command.splitn(2, ' ').collect::<Vec<_>>();
         let direction = part.first().unwrap();
         let distance = part.last().unwrap().parse::<i32>().unwrap();
 
@@ -98,9 +97,7 @@ fn adjust_tail(h: (i32, i32), t: (i32, i32)) -> Option<(i32, i32)> {
     let dx: i32 = h.0 - t.0;
     let dy: i32 = h.1 - t.1;
 
-    if (dx == 0 && dy.abs() == 1) || (dy == 0 && dx.abs() == 1) {
-        None
-    } else if dx.abs() == 1 && dy.abs() == 1 {
+    if (dx == 0 && dy.abs() == 1) || (dy == 0 && dx.abs() == 1) || dx.abs() == 1 && dy.abs() == 1 {
         None
     } else {
         Some((t.0 + to_one(dx), t.1 + to_one(dy)))
@@ -132,12 +129,10 @@ pub fn puzzle_b(path: &str) -> usize {
 }
 
 fn to_one(n: i32) -> i32 {
-    if n > 0 {
-        1
-    } else if n < 0 {
-        -1
-    } else {
-        0
+    match n.cmp(&0) {
+        Ordering::Less => -1,
+        Ordering::Equal => 0,
+        Ordering::Greater => 1,
     }
 }
 

@@ -122,8 +122,7 @@ fn main() {
                 "year: {}, day: {}, puzzle a answer: {}, puzzle b answer: {}",
                 args.year,
                 args.day,
-                0,
-                // puzzle_a(&args.input),
+                puzzle_a(&args.input),
                 puzzle_b(&args.input)
             )
         }

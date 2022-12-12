@@ -51,7 +51,7 @@ pub fn puzzle_a(path: &str) -> usize {
     let map = parse_commands(reader.lines().map(|e| e.unwrap()).collect());
 
     let mut res = 0_usize;
-    for (k, v) in map {
+    for (_, v) in map {
         if v < 100_000 {
             res += v;
         }
@@ -71,7 +71,7 @@ pub fn puzzle_b(path: &str) -> usize {
     let need_to_free = total_used_space - free_space;
 
     let mut res = total_used_space;
-    for (k, v) in map {
+    for (_, v) in map {
         if v >= need_to_free {
             res = min(v, res);
         }
@@ -114,7 +114,7 @@ $ ls
         let map = parse_commands(d);
 
         let mut res = 0_usize;
-        for (k, v) in map {
+        for (_, v) in map {
             if v < 100_000 {
                 res += v;
             }
