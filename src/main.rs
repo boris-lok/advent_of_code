@@ -1,6 +1,5 @@
 use clap::Parser;
 
-
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
@@ -154,6 +153,16 @@ fn main() {
                 args.day,
                 puzzle_a(&std::fs::read_to_string(&args.input).unwrap()),
                 puzzle_b(&std::fs::read_to_string(&args.input).unwrap())
+            )
+        }
+        (2022, 15) => {
+            use advent_of_code::y2022::day15::{puzzle_a, puzzle_b};
+            println!(
+                "year: {}, day: {}, puzzle a answer: {}, puzzle b answer: {}",
+                args.year,
+                args.day,
+                puzzle_a(&std::fs::read_to_string(&args.input).unwrap(), 10),
+                puzzle_b(&std::fs::read_to_string(&args.input).unwrap(), 4_000_000)
             )
         }
         _ => {
