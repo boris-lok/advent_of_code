@@ -1,168 +1,129 @@
-use itertools::Itertools;
+// Reference From: https://github.com/grhkm21/advent-of-code-2022/blob/master/src/solutions/day_15.rs
 use std::cmp::{max, min};
+
+use itertools::Itertools;
+use lazy_static::lazy_static;
+use regex::Regex;
 
 type Coordinate = (isize, isize);
 
+lazy_static! {
+    static ref INT_PATTERN: Regex = Regex::new(r"-?\d+").unwrap();
+}
+
+fn dist(x: isize, y: isize, u: isize, v: isize) -> isize {
+    (x - u).abs() + (y - v).abs()
+}
+
 pub fn puzzle_a(input: &str, target_y: isize) -> usize {
-    let lines = input.lines().collect::<Vec<_>>();
+    let mut data = Vec::new();
+    let mut min_x = isize::MAX;
+    let mut max_x = isize::MIN;
+    let mut max_distance = isize::MIN;
 
-    let mut p = Vec::new();
-    let mut ignore = Vec::new();
+    for line in input.lines() {
+        let mut integers = INT_PATTERN.captures_iter(line);
+        let sx = integers.next().unwrap()[0].parse::<isize>().unwrap();
+        let sy = integers.next().unwrap()[0].parse::<isize>().unwrap();
+        let bx = integers.next().unwrap()[0].parse::<isize>().unwrap();
+        let by = integers.next().unwrap()[0].parse::<isize>().unwrap();
+        min_x = min(min_x, min(sx, bx));
+        max_x = max(max_x, max(sx, bx));
+        let distance = dist(sx, sy, bx, by);
+        max_distance = max(max_distance, distance);
+        data.push(((sx, sy, bx, by), distance));
+    }
 
-    for line in lines {
-        let parts = line.split(' ').collect::<Vec<_>>();
-        let c = parts.len();
-        let sensor_x = &parts[2][0..parts[2].len() - 1];
-        let sensor_y = &parts[3][0..parts[3].len() - 1];
+    let mut ans = 0;
 
-        let beacon_y = &parts[c - 1];
-        let beacon_x = &parts[c - 2][0..parts[c - 2].len() - 1];
+    for u in min_x - max_distance..=max_x + max_distance {
+        let mut possible = false;
+        for ((sx, sy, bx, by), distance) in data.iter() {
+            let s = (*sx, *sy);
+            let b = (*bx, *by);
 
-        let sensor_x = sensor_x
-            .split('=')
-            .last()
-            .unwrap()
-            .parse::<isize>()
-            .unwrap();
-        let sensor_y = sensor_y
-            .split('=')
-            .last()
-            .unwrap()
-            .parse::<isize>()
-            .unwrap();
-        let beacon_x = beacon_x
-            .split('=')
-            .last()
-            .unwrap()
-            .parse::<isize>()
-            .unwrap();
-        let beacon_y = beacon_y
-            .split('=')
-            .last()
-            .unwrap()
-            .parse::<isize>()
-            .unwrap();
+            if s == (u, target_y) || b == (u, target_y) {
+                possible = false;
+                continue;
+            }
 
-        if beacon_y == target_y {
-            ignore.push(beacon_x);
-        }
-
-        let mut x = (sensor_x - beacon_x).abs();
-        let mut current_y = beacon_y;
-        loop {
-            if current_y == sensor_y {
+            if dist(*sx, *sy, u, target_y) <= *distance {
+                possible = true;
                 break;
             }
-            x += 1;
-            current_y += if beacon_y > sensor_y { -1 } else { 1 };
         }
 
-        let top_y = sensor_y - x;
-        let bottom_y = sensor_y + x;
-
-        if top_y < target_y && bottom_y > target_y {
-            let dy = if sensor_y > target_y && sensor_y - x <= target_y {
-                sensor_y - x - target_y
-            } else if sensor_y < target_y && sensor_y + x >= target_y {
-                sensor_y + x - target_y
-            } else {
-                0
-            }
-            .abs();
-
-            dbg!(line, x, dy);
-
-            if dy > 0 {
-                for i in 0..=dy {
-                    p.push(sensor_x - i);
-                    p.push(sensor_x + i);
-                }
-            }
+        if possible {
+            ans += 1;
         }
     }
 
-    p.into_iter()
-        .unique()
-        .filter(|e| ignore.iter().find(|ee| e == *ee).is_none())
-        .collect::<Vec<_>>()
-        .len()
+    ans
 }
 
 pub fn puzzle_b(input: &str, size: isize) -> usize {
-    let lines = input.lines().collect::<Vec<_>>();
+    const N: isize = 4_000_000;
+    let mut data = Vec::new();
+    let mut min_x = isize::MAX;
+    let mut max_x = isize::MIN;
+    let mut max_distance = isize::MIN;
 
-    let mut data: Vec<(Coordinate, Coordinate)> = Vec::new();
-
-    for line in lines {
-        let parts = line.split(' ').collect::<Vec<_>>();
-        let c = parts.len();
-        let sensor_x = &parts[2][0..parts[2].len() - 1];
-        let sensor_y = &parts[3][0..parts[3].len() - 1];
-
-        let beacon_y = &parts[c - 1];
-        let beacon_x = &parts[c - 2][0..parts[c - 2].len() - 1];
-
-        let sensor_x = sensor_x
-            .split('=')
-            .last()
-            .unwrap()
-            .parse::<isize>()
-            .unwrap();
-        let sensor_y = sensor_y
-            .split('=')
-            .last()
-            .unwrap()
-            .parse::<isize>()
-            .unwrap();
-        let beacon_x = beacon_x
-            .split('=')
-            .last()
-            .unwrap()
-            .parse::<isize>()
-            .unwrap();
-        let beacon_y = beacon_y
-            .split('=')
-            .last()
-            .unwrap()
-            .parse::<isize>()
-            .unwrap();
-
-        data.push(((sensor_x, sensor_y), (beacon_x, beacon_y)));
+    for line in input.lines() {
+        let mut integers = INT_PATTERN.captures_iter(line);
+        let sx = integers.next().unwrap()[0].parse::<isize>().unwrap();
+        let sy = integers.next().unwrap()[0].parse::<isize>().unwrap();
+        let bx = integers.next().unwrap()[0].parse::<isize>().unwrap();
+        let by = integers.next().unwrap()[0].parse::<isize>().unwrap();
+        min_x = min(min_x, min(sx, bx));
+        max_x = max(max_x, max(sx, bx));
+        let distance = dist(sx, sy, bx, by);
+        max_distance = max(max_distance, distance);
+        data.push(((sx, sy, bx, by), distance));
     }
 
-    let mut aux: Vec<(isize, isize, isize)> = vec![];
-    for &((sx, sy), (bx, by)) in data.iter() {
-        let distance = calculate_distance(bx, sx) + calculate_distance(by, sy);
-        aux.push((sx, sy, distance));
-    }
+    for u in 0..=size {
+        let mut impossible = Vec::new();
 
-    for y in 0..=size {
-        let mut x = 0_isize;
-        'next: while x <= size {
-            for &(sx, sy, bs_distance) in &aux {
-                let my_distance = calculate_distance(x, sx) + calculate_distance(y, sy);
-                if my_distance <= bs_distance {
-                    let d = calculate_distance(y, sy);
-                    let interval_len = bs_distance - d;
-                    x = sx + interval_len + 1;
-                    continue 'next;
-                }
+        for ((sx, sy, _, _), dt) in data.iter() {
+            let new_dt = dt - (u - sx).abs();
+            if new_dt <= 0 {
+                continue;
             }
-            return x as usize * 4_000_000 + y as usize;
+
+            let p = (max(0, sy - new_dt), min(size, sy + new_dt));
+
+            impossible.push(p);
+        }
+
+        impossible.sort();
+
+        fn intersect(l1: isize, r1: isize, l2: isize, r2: isize) -> Option<(isize, isize)> {
+            if r1 + 1 < l2 {
+                return None;
+            }
+            Some((min(l1, l2), max(r1, r2)))
+        }
+
+        let mut i = 0;
+        while i < impossible.len() - 1 {
+            let (l1, r1) = impossible[i];
+            let (l2, r2) = impossible[i + 1];
+            if let Some((l, r)) = intersect(l1, r1, l2, r2) {
+                impossible[i] = (l, r);
+                impossible.remove(i + 1);
+            } else {
+                i += 1;
+            }
+        }
+
+        if impossible.len() > 1 {
+            assert_eq!(impossible[0].1 + 1, impossible[1].0 - 1);
+            let v = impossible[0].1 + 1;
+            return (u * N + v).try_into().unwrap();
         }
     }
 
-    unreachable!();
-
     0
-}
-
-fn calculate_distance(x: isize, y: isize) -> isize {
-    if x > y {
-        x - y
-    } else {
-        y - x
-    }
 }
 
 #[cfg(test)]
