@@ -165,6 +165,26 @@ fn main() {
                 puzzle_b(&std::fs::read_to_string(&args.input).unwrap(), 4_000_000)
             )
         }
+        (2022, 16) => {
+            use advent_of_code::y2022::day16::{puzzle_a, puzzle_b};
+            println!(
+                "year: {}, day: {}, puzzle a answer: {}, puzzle b answer: {}",
+                args.year,
+                args.day,
+                puzzle_a(&std::fs::read_to_string(&args.input).unwrap()),
+                puzzle_b(&std::fs::read_to_string(&args.input).unwrap())
+            )
+        }
+        (2022, 17) => {
+            use advent_of_code::y2022::day17::{puzzle_a, puzzle_b};
+            println!(
+                "year: {}, day: {}, puzzle a answer: {}, puzzle b answer: {}",
+                args.year,
+                args.day,
+                puzzle_a(&std::fs::read_to_string(&args.input).unwrap()),
+                puzzle_b(&std::fs::read_to_string(&args.input).unwrap())
+            )
+        }
         _ => {
             panic!(
                 "Can't find the source code year: {}, day: {}",
