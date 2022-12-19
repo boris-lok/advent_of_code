@@ -185,6 +185,16 @@ fn main() {
                 puzzle_b(&std::fs::read_to_string(&args.input).unwrap())
             )
         }
+        (2022, 19) => {
+            use advent_of_code::y2022::day19::{puzzle_a, puzzle_b};
+            println!(
+                "year: {}, day: {}, puzzle a answer: {}, puzzle b answer: {}",
+                args.year,
+                args.day,
+                puzzle_a(&std::fs::read_to_string(&args.input).unwrap(), 24),
+                puzzle_b(&std::fs::read_to_string(&args.input).unwrap(), 32)
+            )
+        }
         _ => {
             panic!(
                 "Can't find the source code year: {}, day: {}",
