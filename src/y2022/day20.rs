@@ -1,3 +1,4 @@
+// Reference: https://github.com/AxlLind/AdventOfCode2022/blob/main/src/bin/20.rs
 pub fn puzzle_a(input: &str) -> isize {
     let data = input
         .lines()
