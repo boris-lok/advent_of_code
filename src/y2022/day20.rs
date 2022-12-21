@@ -54,7 +54,7 @@ mod test {
 
     #[test]
     fn test_puzzle_a_works() {
-        let input = include_str!("../input/day20.in");
+        let input = include_str!("../input/day20.test.in");
 
         assert_eq!(puzzle_a(input), 3);
     }
