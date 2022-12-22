@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 #[derive(Debug)]
-enum Operation {
+enum Op {
     Add(String, String),
     Minus(String, String),
     Multiple(String, String),
@@ -11,302 +11,284 @@ enum Operation {
 #[derive(Debug)]
 enum MonkeyOperation {
     Int(isize),
-    Action(Operation),
+    Action(Op),
+}
+
+fn parse_input(input: &str) -> (HashMap<String, isize>, HashMap<String, MonkeyOperation>) {
+    let mut resolved = HashMap::new();
+    let mut unresolved = HashMap::new();
+
+    for line in input.lines() {
+        let mut part = line.split(": ");
+        let key = part.next().unwrap();
+        let rest = part.next().unwrap();
+        if let Ok(n) = rest.parse::<isize>() {
+            resolved.insert(key.to_string(), n);
+        } else {
+            let mut part = rest.split(" ");
+            let k1 = part.next().unwrap().to_string();
+            let o = part.next().unwrap();
+            let k2 = part.next().unwrap().to_string();
+
+            let op = MonkeyOperation::Action(match o {
+                "+" => Op::Add(k1, k2),
+                "-" => Op::Minus(k1, k2),
+                "*" => Op::Multiple(k1, k2),
+                "/" => Op::Div(k1, k2),
+                _ => unreachable!(),
+            });
+            unresolved.insert(key.to_string(), op);
+        };
+    }
+
+    (resolved, unresolved)
 }
 
 pub fn puzzle_a(input: &str) -> isize {
-    let mut map = HashMap::new();
+    let (mut resolved, mut unresolved) = parse_input(input);
 
-    for line in input.lines() {
-        let mut part = line.split(": ");
-        let key = part.next().unwrap();
-        let rest = part.next().unwrap();
-        let operation = if let Ok(n) = rest.parse::<isize>() {
-            MonkeyOperation::Int(n)
-        } else {
-            let mut part = rest.split(" ");
-            let k1 = part.next().unwrap().to_string();
-            let o = part.next().unwrap();
-            let k2 = part.next().unwrap().to_string();
+    while !unresolved.is_empty() {
+        let can_solved = unresolved
+            .iter()
+            .filter(|(key, val)| {
+                let (k1, k2) = match val {
+                    MonkeyOperation::Int(_) => unreachable!(),
+                    MonkeyOperation::Action(op) => match op {
+                        Op::Add(k1, k2) => (k1, k2),
+                        Op::Minus(k1, k2) => (k1, k2),
+                        Op::Multiple(k1, k2) => (k1, k2),
+                        Op::Div(k1, k2) => (k1, k2),
+                    },
+                };
 
-            MonkeyOperation::Action(match o {
-                "+" => Operation::Add(k1, k2),
-                "-" => Operation::Minus(k1, k2),
-                "*" => Operation::Multiple(k1, k2),
-                "/" => Operation::Div(k1, k2),
-                _ => unreachable!(),
+                resolved.contains_key(k1.as_str()) && resolved.contains_key(k2.as_str())
             })
-        };
-        map.insert(key, operation);
+            .map(|(k, _)| k.to_string())
+            .collect::<Vec<_>>();
+
+        for k in can_solved.iter() {
+            let solved = unresolved.get(k.as_str());
+            if let Some(op) = solved {
+                let res = match op {
+                    MonkeyOperation::Int(_) => unreachable!(),
+                    MonkeyOperation::Action(op) => match op {
+                        Op::Add(k1, k2) => {
+                            let n1 = resolved.get(k1.as_str()).unwrap();
+                            let n2 = resolved.get(k2.as_str()).unwrap();
+                            n1 + n2
+                        }
+                        Op::Minus(k1, k2) => {
+                            let n1 = resolved.get(k1.as_str()).unwrap();
+                            let n2 = resolved.get(k2.as_str()).unwrap();
+                            n1 - n2
+                        }
+                        Op::Multiple(k1, k2) => {
+                            let n1 = resolved.get(k1.as_str()).unwrap();
+                            let n2 = resolved.get(k2.as_str()).unwrap();
+                            n1 * n2
+                        }
+                        Op::Div(k1, k2) => {
+                            let n1 = resolved.get(k1.as_str()).unwrap();
+                            let n2 = resolved.get(k2.as_str()).unwrap();
+                            n1 / n2
+                        }
+                    },
+                };
+
+                unresolved.remove(k.as_str());
+                resolved.insert(k.to_string(), res);
+            }
+        }
     }
 
-    let root = map.get("root").unwrap();
-    calculate(root, &map)
+    *resolved.get("root").unwrap()
 }
 
 pub fn puzzle_b(input: &str) -> isize {
-    let mut map = HashMap::new();
+    let (mut resolved, mut unresolved) = parse_input(input);
+    resolved.remove("humn");
+    let root = unresolved.remove("root").unwrap();
 
-    for line in input.lines() {
-        let mut part = line.split(": ");
-        let key = part.next().unwrap();
-        if key == "humn" {
-            continue;
-        }
-        let rest = part.next().unwrap();
-        let operation = if let Ok(n) = rest.parse::<isize>() {
-            MonkeyOperation::Int(n)
-        } else {
-            let mut part = rest.split(" ");
-            let k1 = part.next().unwrap().to_string();
-            let o = part.next().unwrap();
-            let k2 = part.next().unwrap().to_string();
+    loop {
+        let can_solved = unresolved
+            .iter()
+            .filter(|(key, val)| {
+                let (k1, k2) = match val {
+                    MonkeyOperation::Int(_) => unreachable!(),
+                    MonkeyOperation::Action(op) => match op {
+                        Op::Add(k1, k2) => (k1, k2),
+                        Op::Minus(k1, k2) => (k1, k2),
+                        Op::Multiple(k1, k2) => (k1, k2),
+                        Op::Div(k1, k2) => (k1, k2),
+                    },
+                };
 
-            MonkeyOperation::Action(match o {
-                "+" => Operation::Add(k1, k2),
-                "-" => Operation::Minus(k1, k2),
-                "*" => Operation::Multiple(k1, k2),
-                "/" => Operation::Div(k1, k2),
-                _ => unreachable!(),
+                resolved.contains_key(k1.as_str()) && resolved.contains_key(k2.as_str())
             })
-        };
-        map.insert(key, operation);
-    }
+            .map(|(k, _)| k.to_string())
+            .collect::<Vec<_>>();
 
-    // let c1 = map.get("pppw").unwrap();
-    // let c2 = map.get("sjmn").unwrap();
-    // let mut c1 = dbg!(calculate_2(c1, &map));
-    // let mut c2 = dbg!(calculate_2(c2, &map));
-    //
-    // if c1.is_none() {
-    //     c1 = c2;
-    // }
-    // if c2.is_none() {
-    //     c2 = c1;
-    // }
+        if can_solved.is_empty() {
+            break;
+        }
 
-    // map.insert("pppw", MonkeyOperation::Int(150));
+        for k in can_solved.iter() {
+            let solved = unresolved.get(k.as_str());
+            if let Some(op) = solved {
+                let res = match op {
+                    MonkeyOperation::Int(_) => unreachable!(),
+                    MonkeyOperation::Action(op) => match op {
+                        Op::Add(k1, k2) => {
+                            let n1 = resolved.get(k1.as_str()).unwrap();
+                            let n2 = resolved.get(k2.as_str()).unwrap();
+                            n1 + n2
+                        }
+                        Op::Minus(k1, k2) => {
+                            let n1 = resolved.get(k1.as_str()).unwrap();
+                            let n2 = resolved.get(k2.as_str()).unwrap();
+                            n1 - n2
+                        }
+                        Op::Multiple(k1, k2) => {
+                            let n1 = resolved.get(k1.as_str()).unwrap();
+                            let n2 = resolved.get(k2.as_str()).unwrap();
+                            n1 * n2
+                        }
+                        Op::Div(k1, k2) => {
+                            let n1 = resolved.get(k1.as_str()).unwrap();
+                            let n2 = resolved.get(k2.as_str()).unwrap();
+                            n1 / n2
+                        }
+                    },
+                };
 
-    // c1.unwrap() + c2.unwrap()
-    let mut map2 = HashMap::new();
-
-    for (k, v) in map.into_iter() {
-        match v {
-            MonkeyOperation::Int(_) => {
-                map2.insert(k.to_string(), v);
+                unresolved.remove(k.as_str());
+                resolved.insert(k.to_string(), res);
             }
-            MonkeyOperation::Action(action) => match action {
-                Operation::Add(k1, k2) => {
-                    if k1 == "humn".to_string() {
-                        map2.insert(
-                            k1,
-                            MonkeyOperation::Action(Operation::Minus(k.to_string(), k2)),
-                        );
-                    } else if k2 == "humn".to_string() {
-                        map2.insert(
-                            k2,
-                            MonkeyOperation::Action(Operation::Minus(k.to_string(), k1)),
-                        );
-                    } else {
-                        map2.insert(
-                            k.to_string(),
-                            MonkeyOperation::Action(Operation::Add(k1, k2)),
-                        );
-                    }
-                }
-                Operation::Minus(k1, k2) => {
-                    if k1 == "humn".to_string() {
-                        map2.insert(
-                            k1,
-                            MonkeyOperation::Action(Operation::Add(k.to_string(), k2)),
-                        );
-                    } else if k2 == "humn".to_string() {
-                        map2.insert(
-                            k2,
-                            MonkeyOperation::Action(Operation::Add(k.to_string(), k1)),
-                        );
-                    } else {
-                        map2.insert(
-                            k.to_string(),
-                            MonkeyOperation::Action(Operation::Minus(k1, k2)),
-                        );
-                    }
-                }
-                Operation::Multiple(k1, k2) => {
-                    if k1 == "humn".to_string() {
-                        map2.insert(
-                            k1,
-                            MonkeyOperation::Action(Operation::Div(k.to_string(), k2)),
-                        );
-                    } else if k2 == "humn".to_string() {
-                        map2.insert(
-                            k2,
-                            MonkeyOperation::Action(Operation::Div(k.to_string(), k1)),
-                        );
-                    } else {
-                        map2.insert(
-                            k.to_string(),
-                            MonkeyOperation::Action(Operation::Multiple(k1, k2)),
-                        );
-                    }
-                }
-                Operation::Div(k1, k2) => {
-                    if k1 == "humn".to_string() {
-                        map2.insert(
-                            k1,
-                            MonkeyOperation::Action(Operation::Multiple(k.to_string(), k2)),
-                        );
-                    } else if k2 == "humn".to_string() {
-                        map2.insert(
-                            k2,
-                            MonkeyOperation::Action(Operation::Multiple(k.to_string(), k1)),
-                        );
-                    } else {
-                        map2.insert(
-                            k.to_string(),
-                            MonkeyOperation::Action(Operation::Div(k1, k2)),
-                        );
-                    }
-                }
-            },
         }
     }
 
-    map2.insert("pppw".to_string(), MonkeyOperation::Int(150));
-
-    let root = map2.get("humn").unwrap();
-    let ans = dbg!(calculate_3(root, &map2));
-
-    0
-}
-
-fn calculate_2(cur: &MonkeyOperation, map: &HashMap<&str, MonkeyOperation>) -> Option<isize> {
-    match cur {
-        MonkeyOperation::Int(n) => {
-            return Some(*n);
-        }
-        MonkeyOperation::Action(operation) => match operation {
-            Operation::Add(k1, k2) => {
-                let m1 = map.get(k1.as_str());
-                let m2 = map.get(k2.as_str());
-                if m1.is_none() || m2.is_none() {
-                    return None;
-                }
-                let c1 = calculate_2(m1.unwrap(), map);
-                let c2 = calculate_2(m2.unwrap(), map);
-                if c1.is_some() && c2.is_some() {
-                    return Some(c1.unwrap() + c2.unwrap());
-                } else {
-                    None
+    match root {
+        MonkeyOperation::Int(_) => unreachable!(),
+        MonkeyOperation::Action(op) => match op {
+            Op::Add(k1, k2) => {
+                let r1 = resolved.get(k1.as_str());
+                let r2 = resolved.get(k2.as_str());
+                if let Some(r1) = r1 {
+                    resolved.insert(k2, *r1);
+                } else if let Some(r2) = r2 {
+                    resolved.insert(k1, *r2);
                 }
             }
-            Operation::Minus(k1, k2) => {
-                let m1 = map.get(k1.as_str());
-                let m2 = map.get(k2.as_str());
-                if m1.is_none() || m2.is_none() {
-                    return None;
-                }
-                let c1 = calculate_2(m1.unwrap(), map);
-                let c2 = calculate_2(m2.unwrap(), map);
-                if c1.is_some() && c2.is_some() {
-                    return Some(c1.unwrap() - c2.unwrap());
-                } else {
-                    None
+            Op::Minus(k1, k2) => {
+                let r1 = resolved.get(k1.as_str());
+                let r2 = resolved.get(k2.as_str());
+                if let Some(r1) = r1 {
+                    resolved.insert(k2, *r1);
+                } else if let Some(r2) = r2 {
+                    resolved.insert(k1, *r2);
                 }
             }
-            Operation::Multiple(k1, k2) => {
-                let m1 = map.get(k1.as_str());
-                let m2 = map.get(k2.as_str());
-                if m1.is_none() || m2.is_none() {
-                    return None;
-                }
-                let c1 = calculate_2(m1.unwrap(), map);
-                let c2 = calculate_2(m2.unwrap(), map);
-                if c1.is_some() && c2.is_some() {
-                    return Some(c1.unwrap() * c2.unwrap());
-                } else {
-                    None
+            Op::Multiple(k1, k2) => {
+                let r1 = resolved.get(k1.as_str());
+                let r2 = resolved.get(k2.as_str());
+                if let Some(r1) = r1 {
+                    resolved.insert(k2, *r1);
+                } else if let Some(r2) = r2 {
+                    resolved.insert(k1, *r2);
                 }
             }
-            Operation::Div(k1, k2) => {
-                let m1 = map.get(k1.as_str());
-                let m2 = map.get(k2.as_str());
-                if m1.is_none() || m2.is_none() {
-                    return None;
-                }
-                let c1 = calculate_2(m1.unwrap(), map);
-                let c2 = calculate_2(m2.unwrap(), map);
-                if c1.is_some() && c2.is_some() {
-                    return Some(c1.unwrap() / c2.unwrap());
-                } else {
-                    None
+            Op::Div(k1, k2) => {
+                let r1 = resolved.get(k1.as_str());
+                let r2 = resolved.get(k2.as_str());
+                if let Some(r1) = r1 {
+                    resolved.insert(k2, *r1);
+                } else if let Some(r2) = r2 {
+                    resolved.insert(k1, *r2);
                 }
             }
         },
     }
-}
 
-fn calculate(cur: &MonkeyOperation, map: &HashMap<&str, MonkeyOperation>) -> isize {
-    match cur {
-        MonkeyOperation::Int(n) => {
-            return *n;
+    loop {
+        let can_solved = unresolved
+            .iter()
+            .filter(|(key, val)| {
+                let (k1, k2) = match val {
+                    MonkeyOperation::Int(_) => unreachable!(),
+                    MonkeyOperation::Action(op) => match op {
+                        Op::Add(k1, k2) => (k1, k2),
+                        Op::Minus(k1, k2) => (k1, k2),
+                        Op::Multiple(k1, k2) => (k1, k2),
+                        Op::Div(k1, k2) => (k1, k2),
+                    },
+                };
+
+                resolved.contains_key(key.as_str())
+                    && (resolved.contains_key(k1.as_str()) || resolved.contains_key(k2.as_str()))
+            })
+            .map(|(k, _)| k.to_string())
+            .collect::<Vec<_>>();
+
+        if can_solved.is_empty() {
+            break;
         }
-        MonkeyOperation::Action(operation) => match operation {
-            Operation::Add(k1, k2) => {
-                let m1 = map.get(k1.as_str()).unwrap();
-                let m2 = map.get(k2.as_str()).unwrap();
-                calculate(m1, map) + calculate(m2, map)
-            }
-            Operation::Minus(k1, k2) => {
-                let m1 = map.get(k1.as_str()).unwrap();
-                let m2 = map.get(k2.as_str()).unwrap();
-                calculate(m1, map) - calculate(m2, map)
-            }
-            Operation::Multiple(k1, k2) => {
-                let m1 = map.get(k1.as_str()).unwrap();
-                let m2 = map.get(k2.as_str()).unwrap();
-                calculate(m1, map) * calculate(m2, map)
-            }
-            Operation::Div(k1, k2) => {
-                let m1 = map.get(k1.as_str()).unwrap();
-                let m2 = map.get(k2.as_str()).unwrap();
-                calculate(m1, map) / calculate(m2, map)
-            }
-        },
-    }
-}
 
-fn calculate_3(cur: &MonkeyOperation, map: &HashMap<String, MonkeyOperation>) -> isize {
-    match cur {
-        MonkeyOperation::Int(n) => {
-            return *n;
+        for k in can_solved.iter() {
+            let solved = unresolved.get(k.as_str());
+            if let Some(op) = solved {
+                match op {
+                    MonkeyOperation::Int(_) => unreachable!(),
+                    MonkeyOperation::Action(op) => match op {
+                        Op::Add(k1, k2) => {
+                            let n = resolved.get(k.as_str()).unwrap();
+                            let n1 = resolved.get(k1.as_str());
+                            let n2 = resolved.get(k2.as_str());
+                            if let Some(n1) = n1 {
+                                resolved.insert(k2.to_string(), n - n1);
+                            } else if let Some(n2) = n2 {
+                                resolved.insert(k1.to_string(), n - n2);
+                            }
+                        }
+                        Op::Minus(k1, k2) => {
+                            let n = resolved.get(k.as_str()).unwrap();
+                            let n1 = resolved.get(k1.as_str());
+                            let n2 = resolved.get(k2.as_str());
+                            if let Some(n1) = n1 {
+                                resolved.insert(k2.to_string(), n1 - n);
+                            } else if let Some(n2) = n2 {
+                                resolved.insert(k1.to_string(), n + n2);
+                            }
+                        }
+                        Op::Multiple(k1, k2) => {
+                            let n = resolved.get(k.as_str()).unwrap();
+                            let n1 = resolved.get(k1.as_str());
+                            let n2 = resolved.get(k2.as_str());
+                            if let Some(n1) = n1 {
+                                resolved.insert(k2.to_string(), n / n1);
+                            } else if let Some(n2) = n2 {
+                                resolved.insert(k1.to_string(), n / n2);
+                            }
+                        }
+                        Op::Div(k1, k2) => {
+                            let n = resolved.get(k.as_str()).unwrap();
+                            let n1 = resolved.get(k1.as_str());
+                            let n2 = resolved.get(k2.as_str());
+                            if let Some(n1) = n1 {
+                                resolved.insert(k2.to_string(), n * n1);
+                            } else if let Some(n2) = n2 {
+                                resolved.insert(k1.to_string(), n * n2);
+                            }
+                        }
+                    },
+                }
+
+                unresolved.remove(k.as_str());
+            }
         }
-        MonkeyOperation::Action(operation) => match operation {
-            Operation::Add(k1, k2) => {
-                dbg!(&k1);
-                let m1 = map.get(k1.as_str()).unwrap();
-                let m2 = map.get(k2.as_str()).unwrap();
-                calculate_3(m1, map) + calculate_3(m2, map)
-            }
-            Operation::Minus(k1, k2) => {
-                let m1 = map.get(k1.as_str()).unwrap();
-                let m2 = map.get(k2.as_str()).unwrap();
-                calculate_3(m1, map) - calculate_3(m2, map)
-            }
-            Operation::Multiple(k1, k2) => {
-                let m1 = map.get(k1.as_str()).unwrap();
-                let m2 = map.get(k2.as_str()).unwrap();
-                calculate_3(m1, map) * calculate_3(m2, map)
-            }
-            Operation::Div(k1, k2) => {
-                let m1 = map.get(k1.as_str()).unwrap();
-                let m2 = map.get(k2.as_str()).unwrap();
-                calculate_3(m1, map) / calculate_3(m2, map)
-            }
-        },
     }
-}
 
+    *resolved.get("humn").unwrap()
+}
 
 #[cfg(test)]
 mod test {
