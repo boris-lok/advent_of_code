@@ -70,13 +70,13 @@ fn solve_b(input: &str) -> usize {
             .collect::<Vec<_>>();
 
         if win.len() > 0 && idx + 1 < len {
-            for i in (idx + 1)..=cmp::min(idx + win.len(), idx + 1) {
+            for i in (idx + 1)..=idx + win.len() {
                 cards[i].score += cards[idx].score;
             }
         }
     }
 
-    0
+    cards.iter().map(|c| c.score).sum()
 }
 
 #[cfg(test)]
@@ -96,8 +96,10 @@ Card 6: 31 18 13 56 72 | 74 77 10 23 35 67 36 11";
         println!("{:?}", predict);
         println!("{}", solve_a(raw));
         let ans = 13;
-        println!("{}", solve_b(raw));
         assert_eq!(solve_a(raw), ans);
+        let ans = 30;
+        assert_eq!(solve_b(raw), ans);
+
     }
     #[test]
     fn run() {
